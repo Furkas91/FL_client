@@ -1,0 +1,2 @@
+class MiningModelElement:
+    pass
