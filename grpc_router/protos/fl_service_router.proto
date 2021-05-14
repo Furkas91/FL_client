@@ -1,0 +1,122 @@
+syntax = "proto3";                              // using protobuf v3
+
+package org.etu.fl;                             // general namespace for the framework
+
+// java compile parameters
+option java_package        = "org.etu.fl.grpc"; // generated java classes package
+option java_multiple_files = true;              // split generated classes on multiple files
+
+import "google/protobuf/struct.proto";          // import for NullValue type below
+
+//============================================================================
+// ABSTRACT DESCRIPTOR META-TYPE MESSAGE DEFINITION SECTION
+//============================================================================
+
+/*
+  Descriptor is a representation of transferable entities of the framework.
+  Descriptor can be null or one of the common CS data structures.
+  Unsetted kind is an exception.
+
+  "oneof kind" behaves as C++'s union type: at the moment Descriptor
+  can be only one kind of value.
+*/
+message Descriptor {
+  oneof kind {
+    google.protobuf.NullValue isNull       = 1;
+    bool                      bool_value   = 2;
+    bytes                     byte_value   = 3;
+    bytes                     short_value  = 4;
+    int32                     int_value    = 5;
+    int64                     long_value   = 6;
+    float                     float_value  = 7;
+    double                    double_value = 8;
+    string                    string_value = 9;
+    EnumDescriptor            enumeration  = 10;
+    ListDescriptor            list         = 11;
+    MapDescriptor             map          = 12;
+    ObjectDescriptor          object       = 13;
+  }
+}
+
+message EnumDescriptor {
+  string enum_name        = 1;
+  int32  enum_value_index = 2;
+  string enum_value_name  = 3;
+}
+
+/* ListNode is just list container for descriptors */
+message ListDescriptor {
+  repeated Descriptor descriptors = 1;
+}
+
+/*
+  MapNode is map container of descriptable keys and values. It's not a map inside,
+  because Proto3 doesn't support keys which are not string or integral. The solution
+  provided by Google itself: https://developers.google.com/protocol-buffers/docs/proto3#backwards_compatibility
+ */
+message MapDescriptor {
+  repeated MapDescriptorEntry entries = 1;
+}
+
+message MapDescriptorEntry {
+  Descriptor key   = 1;
+  Descriptor value = 2;
+}
+
+message ObjectDescriptor {
+  string                  class_name = 1;
+  map<string, Descriptor> fields     = 2;
+}
+
+//============================================================================
+// CONCRETE MESSAGE TYPES SECTION
+//============================================================================
+
+/* Requested serviceID - value of unique ID of a service in the federation. */
+message RequestedServiceID {
+  string service_id = 1;
+}
+
+message Schedule {
+  Descriptor node = 1;
+  Descriptor algorithm_block = 2;
+  Descriptor assignments = 3;
+  repeated Schedule subschedules = 4;
+}
+
+message ExecutionContainer {
+  string task_id = 1;
+  Descriptor settings = 2;
+  Descriptor model = 3;
+  Schedule schedule = 4;
+}
+
+message ErrorDescription {
+  uint32 error_code = 1;
+  string description = 2;
+}
+
+message ExecutionResult {
+  oneof kind {
+    Descriptor model = 1;
+    ErrorDescription error_msg = 2;
+  }
+}
+
+//============================================================================
+//  SERVICES SECTION
+//============================================================================
+
+/*
+ List of Router's services -- common abstract methods which every Router
+ should provide
+*/
+service FLRouterService {
+  /*
+    Router's method which require a serviveID of desired FLService and expects its
+    Descriptor as the response. Should be use for collecting information about
+    services and federation resources.
+   */
+  rpc ReceiveFLServiceDescriptor (RequestedServiceID) returns (Descriptor);
+  rpc ExecuteSchedule (ExecutionContainer) returns (ExecutionResult);
+}
