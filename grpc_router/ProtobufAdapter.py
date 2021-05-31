@@ -1,0 +1,2 @@
+class ProtobufAdapter:
+    pass

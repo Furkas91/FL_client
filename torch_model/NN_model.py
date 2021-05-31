@@ -10,25 +10,29 @@ import numpy as np
 
 from torch_model.DataLoader import get_data_loader
 
-
+loss_functions = {
+    ''
+}
 class UniversalNet(nn.Module):
-    def __init__(self, layers, activations):
+    def __init__(self, layers, activations, normalizations):
         super(UniversalNet, self).__init__()
         self.number_of_layers = len(layers)
         self.layers = nn.ModuleList(layers)
         self.activations = activations
+        self.normalizations = normalizations
 
     def forward(self, x):
         for i in range(self.number_of_layers):
             x = self.layers[i](x)
             x = self.activations[i](x)
+            x = self.normalizations[i](x)
         return x
 
 
-def create_nn(batch_size=200, learning_rate=0.01, epochs=10,
-              log_interval=10):
+def create_nn(path='D:/FL_client/data/MNIST/train.csv', batch_size=200,
+              learning_rate=0.01, epochs=10, log_interval=10):
     # train_df = pd.read_csv('D:/FL_client/data/MNIST/train.csv')
-    train_loader = get_data_loader('D:/FL_client/data/MNIST/train.csv', batch_size)
+    train_loader = get_data_loader(path, batch_size)
     test_loader = torch.utils.data.DataLoader(
         datasets.MNIST('../data', train=False, transform=transforms.Compose([
             transforms.Normalize((0.1307,), (0.3081,))
@@ -39,12 +43,13 @@ def create_nn(batch_size=200, learning_rate=0.01, epochs=10,
         def __init__(self):
             super(Net, self).__init__()
             self.fc1 = nn.Linear(28 * 28, 200)
+            self.norm = nn.BatchNorm1d(200)
             self.fc2 = nn.Linear(200, 200)
             self.fc3 = nn.Linear(200, 10)
 
         def forward(self, x):
-            x = F.relu(self.fc1(x))
-            x = F.relu(self.fc2(x))
+            x = self.norm(F.relu(self.fc1(x)))
+            x = self.norm(F.relu(self.fc2(x)))
             x = self.fc3(x)
             return F.log_softmax(x)
 
@@ -58,8 +63,8 @@ def create_nn(batch_size=200, learning_rate=0.01, epochs=10,
         F.relu,
         F.log_softmax
     ]
-    net = UniversalNet(layers, activations)
-    # net = Net()
+    #net = UniversalNet(layers, activations)
+    net = Net()
     print(net)
     # create a stochastic gradient descent optimizer
     optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
@@ -104,4 +109,4 @@ def create_nn(batch_size=200, learning_rate=0.01, epochs=10,
 
 
 if __name__ == "__main__":
-    net  = create_nn()
+    net = create_nn()
