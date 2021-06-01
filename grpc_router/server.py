@@ -7,14 +7,16 @@ import fl_service_router_pb2
 import fl_service_router_pb2_grpc
 
 # map=fl_service_router_pb2.MapDescriptor()
-from proto_adapter import NeuralNetModel
+from proto_adapter import NeuralNetModel, MiningSettings
 from torch_model.NN_model import create_nn
 
 
 def execute(container):
+    sett = MiningSettings.from_proto(container.settings)
     mdd = NeuralNetModel.from_proto(container.model)
     result = create_nn(mdd.to_torch_model())
     mdd.get_weights(result)
+    print(sett)
     return mdd
 
 
