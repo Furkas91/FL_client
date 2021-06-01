@@ -8,6 +8,9 @@ import fl_service_router_pb2_grpc
 
 
 # map=fl_service_router_pb2.MapDescriptor()
+from torch_model.NN_model import create_nn
+
+
 def get_service_descriptor():
     service_descriptor = fl_service_router_pb2.ObjectDescriptor(
         class_name='org.etu.fl.client.FLClient',
@@ -50,9 +53,12 @@ class FLRouter(fl_service_router_pb2_grpc.FLRouterService):
         x = target.model
         #.fields['properties'].list.descriptors[5].enumeration.enum_value_name
         print(type(x))
-        print(x)
+        #print(x)
         mdd = NeuralNetModel.from_proto(target.model)
-        print(mdd.to_proto())
+        result = create_nn(mdd.to_torch_model())
+        mdd.get_weights(result)
+        print(result)
+        #print(mdd.to_proto())
         return fl_service_router_pb2.ExecutionResult(model=mdd.to_proto())
 
     def ReceiveFLServiceDescriptor(request,

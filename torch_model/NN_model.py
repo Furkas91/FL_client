@@ -13,6 +13,8 @@ from torch_model.DataLoader import get_data_loader
 loss_functions = {
     ''
 }
+
+
 class UniversalNet(nn.Module):
     def __init__(self, layers, activations, normalizations):
         super(UniversalNet, self).__init__()
@@ -29,8 +31,8 @@ class UniversalNet(nn.Module):
         return x
 
 
-def create_nn(path='D:/FL_client/data/MNIST/train.csv', batch_size=200,
-              learning_rate=0.01, epochs=10, log_interval=10):
+def create_nn(proto_model, path='D:/FL_client/data/MNIST/train.csv', batch_size=200,
+              learning_rate=0.01, epochs=1, log_interval=10):
     # train_df = pd.read_csv('D:/FL_client/data/MNIST/train.csv')
     train_loader = get_data_loader(path, batch_size)
     test_loader = torch.utils.data.DataLoader(
@@ -54,7 +56,7 @@ def create_nn(path='D:/FL_client/data/MNIST/train.csv', batch_size=200,
             return F.log_softmax(x)
 
     layers = [
-        nn.Linear(28*28, 200, bias=False),
+        nn.Linear(784, 200, bias=False),
         nn.Linear(200, 200),
         nn.Linear(200, 10)
     ]
@@ -63,9 +65,17 @@ def create_nn(path='D:/FL_client/data/MNIST/train.csv', batch_size=200,
         F.relu,
         F.log_softmax
     ]
-    #net = UniversalNet(layers, activations)
-    net = Net()
+    normalizations = [
+        nn.BatchNorm1d(200),
+        nn.BatchNorm1d(200),
+        lambda x: x
+    ]
+    # net = UniversalNet(layers, activations, normalizations)
+    # net = Net()
+    net = proto_model
     print(net)
+    print(net.activations)
+    print(net.normalizations)
     # create a stochastic gradient descent optimizer
     optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
     # create a loss function
@@ -109,4 +119,4 @@ def create_nn(path='D:/FL_client/data/MNIST/train.csv', batch_size=200,
 
 
 if __name__ == "__main__":
-    net = create_nn()
+    net = create_nn(1)
