@@ -2,7 +2,7 @@ from google.protobuf.struct_pb2 import NULL_VALUE
 from torch import nn
 
 from grpc_router.fl_service_router_pb2 import Descriptor, ObjectDescriptor, ListDescriptor, MapDescriptor
-from model import DenseLayer, NormalizationLayer1
+from proto_adapter import DenseLayer, NormalizationLayer1
 from torch_model.NN_model import UniversalNet
 
 layer_type = {

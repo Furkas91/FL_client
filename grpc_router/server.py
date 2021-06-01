@@ -6,9 +6,16 @@ import grpc
 import fl_service_router_pb2
 import fl_service_router_pb2_grpc
 
-
 # map=fl_service_router_pb2.MapDescriptor()
+from proto_adapter import NeuralNetModel
 from torch_model.NN_model import create_nn
+
+
+def execute(container):
+    mdd = NeuralNetModel.from_proto(container.model)
+    result = create_nn(mdd.to_torch_model())
+    mdd.get_weights(result)
+    return mdd
 
 
 def get_service_descriptor():
@@ -31,8 +38,8 @@ def get_service_descriptor():
                     ))
                 }
             ))
-        #    'children': fl_service_router_pb2.Descriptor(),
-        #    'workers': fl_service_router_pb2.Descriptor()
+            #    'children': fl_service_router_pb2.Descriptor(),
+            #    'workers': fl_service_router_pb2.Descriptor()
         })
     return fl_service_router_pb2.Descriptor(object=service_descriptor)
 
@@ -40,37 +47,35 @@ def get_service_descriptor():
 class FLRouter(fl_service_router_pb2_grpc.FLRouterService):
 
     def ExecuteSchedule(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        from model import NeuralNetModel
+                        target,
+                        options=(),
+                        channel_credentials=None,
+                        call_credentials=None,
+                        insecure=False,
+                        compression=None,
+                        wait_for_ready=None,
+                        timeout=None,
+                        metadata=None):
+        from proto_adapter import NeuralNetModel
         x = target.model
-        #.fields['properties'].list.descriptors[5].enumeration.enum_value_name
+        # .fields['properties'].list.descriptors[5].enumeration.enum_value_name
         print(type(x))
-        #print(x)
-        mdd = NeuralNetModel.from_proto(target.model)
-        result = create_nn(mdd.to_torch_model())
-        mdd.get_weights(result)
+        # print(x)
+        result = execute(target)
         print(result)
-        #print(mdd.to_proto())
+        # print(mdd.to_proto())
         return fl_service_router_pb2.ExecutionResult(model=mdd.to_proto())
 
     def ReceiveFLServiceDescriptor(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
+                                   target,
+                                   options=(),
+                                   channel_credentials=None,
+                                   call_credentials=None,
+                                   insecure=False,
+                                   compression=None,
+                                   wait_for_ready=None,
+                                   timeout=None,
+                                   metadata=None):
         if target.service_id == 'nn_client':
             print('all good')
         else:

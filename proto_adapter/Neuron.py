@@ -1,4 +1,4 @@
-from model.MiningModelElement import MiningModelElement
+from proto_adapter.MiningModelElement import MiningModelElement
 
 
 class Neuron(MiningModelElement):

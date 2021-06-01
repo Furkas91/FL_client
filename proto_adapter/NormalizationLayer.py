@@ -1,7 +1,7 @@
 from Tools.scripts import google
 from google.protobuf.struct_pb2 import NULL_VALUE
 
-from model.MiningModelElement import MiningModelElement
+from proto_adapter.MiningModelElement import MiningModelElement
 from grpc_router.fl_service_router_pb2 import Descriptor, ObjectDescriptor, ListDescriptor
 
 

@@ -4,7 +4,7 @@ from google.protobuf.struct_pb2 import NULL_VALUE
 from torch import nn, Tensor
 
 from grpc_router.fl_service_router_pb2 import Descriptor, ObjectDescriptor, ListDescriptor, MapDescriptor, EnumDescriptor
-from model.MiningModelElement import MiningModelElement
+from proto_adapter.MiningModelElement import MiningModelElement
 import torch.nn.functional as F
 import numpy as np
 
