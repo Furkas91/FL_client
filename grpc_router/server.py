@@ -47,13 +47,13 @@ class FLRouter(fl_service_router_pb2_grpc.FLRouterService):
             timeout=None,
             metadata=None):
         from model import NeuralNetModel
-        x = target.model.object.fields
+        x = target.model
         #.fields['properties'].list.descriptors[5].enumeration.enum_value_name
         print(type(x))
         print(x)
         mdd = NeuralNetModel.from_proto(target.model)
-        print(mdd)
-        return fl_service_router_pb2.ExecutionResult(model=target.model)
+        print(mdd.to_proto())
+        return fl_service_router_pb2.ExecutionResult(model=mdd.to_proto())
 
     def ReceiveFLServiceDescriptor(request,
             target,

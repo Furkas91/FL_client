@@ -1,0 +1,355 @@
+object {
+  class_name: "org.etu.fl.classification.nn.NNModel"
+  fields {
+    key: "algorithmName"
+    value {
+      isNull: NULL_VALUE
+    }
+  }
+  fields {
+    key: "sets"
+    value {
+      list {
+        descriptors {
+          object {
+            class_name: "org.etu.fl.classification.nn.NNDenseLayerModelElement"
+            fields {
+              key: "id"
+              value {
+              }
+            }
+            fields {
+              key: "properties"
+              value {
+                list {
+                  descriptors {
+                    list {
+                      descriptors {
+                        list {
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                        }
+                      }
+                      descriptors {
+                        list {
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                        }
+                      }
+                      descriptors {
+                        list {
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                        }
+                      }
+                    }
+                  }
+                  descriptors {
+                    int_value: 3
+                  }
+                  descriptors {
+                    int_value: 3
+                  }
+                  descriptors {
+                    list {
+                      descriptors {
+                        double_value: 0.0
+                      }
+                      descriptors {
+                        double_value: 0.0
+                      }
+                      descriptors {
+                        double_value: 0.0
+                      }
+                    }
+                  }
+                  descriptors {
+                    bool_value: true
+                  }
+                  descriptors {
+                    enumeration {
+                      enum_name: "org.etu.fl.classification.nn.ActivationFunction"
+                      enum_value_index: 1
+                      enum_value_name: "RELU"
+                    }
+                  }
+                }
+              }
+            }
+            fields {
+              key: "set"
+              value {
+                list {
+                }
+              }
+            }
+          }
+        }
+        descriptors {
+          object {
+            class_name: "org.etu.fl.classification.nn.NNBatchLayerModelElement"
+            fields {
+              key: "id"
+              value {
+                isNull: NULL_VALUE
+              }
+            }
+            fields {
+              key: "properties"
+              value {
+                list {
+                }
+              }
+            }
+            fields {
+              key: "set"
+              value {
+                list {
+                }
+              }
+            }
+          }
+        }
+        descriptors {
+          object {
+            class_name: "org.etu.fl.classification.nn.NNDenseLayerModelElement"
+            fields {
+              key: "id"
+              value {
+              }
+            }
+            fields {
+              key: "properties"
+              value {
+                list {
+                  descriptors {
+                    list {
+                      descriptors {
+                        list {
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                        }
+                      }
+                      descriptors {
+                        list {
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                        }
+                      }
+                      descriptors {
+                        list {
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                        }
+                      }
+                    }
+                  }
+                  descriptors {
+                    int_value: 3
+                  }
+                  descriptors {
+                    int_value: 3
+                  }
+                  descriptors {
+                    list {
+                      descriptors {
+                        double_value: 0.0
+                      }
+                      descriptors {
+                        double_value: 0.0
+                      }
+                      descriptors {
+                        double_value: 0.0
+                      }
+                    }
+                  }
+                  descriptors {
+                    bool_value: true
+                  }
+                  descriptors {
+                    enumeration {
+                      enum_name: "org.etu.fl.classification.nn.ActivationFunction"
+                      enum_value_index: 1
+                      enum_value_name: "RELU"
+                    }
+                  }
+                }
+              }
+            }
+            fields {
+              key: "set"
+              value {
+                list {
+                }
+              }
+            }
+          }
+        }
+        descriptors {
+          object {
+            class_name: "org.etu.fl.classification.nn.NNBatchLayerModelElement"
+            fields {
+              key: "id"
+              value {
+                isNull: NULL_VALUE
+              }
+            }
+            fields {
+              key: "properties"
+              value {
+                list {
+                }
+              }
+            }
+            fields {
+              key: "set"
+              value {
+                list {
+                }
+              }
+            }
+          }
+        }
+        descriptors {
+          object {
+            class_name: "org.etu.fl.classification.nn.NNDenseLayerModelElement"
+            fields {
+              key: "id"
+              value {
+              }
+            }
+            fields {
+              key: "properties"
+              value {
+                list {
+                  descriptors {
+                    list {
+                      descriptors {
+                        list {
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                        }
+                      }
+                      descriptors {
+                        list {
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                        }
+                      }
+                      descriptors {
+                        list {
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                          descriptors {
+                            double_value: 0.0
+                          }
+                        }
+                      }
+                    }
+                  }
+                  descriptors {
+                    int_value: 3
+                  }
+                  descriptors {
+                    int_value: 3
+                  }
+                  descriptors {
+                    list {
+                      descriptors {
+                        double_value: 0.0
+                      }
+                      descriptors {
+                        double_value: 0.0
+                      }
+                      descriptors {
+                        double_value: 0.0
+                      }
+                    }
+                  }
+                  descriptors {
+                    bool_value: true
+                  }
+                  descriptors {
+                    enumeration {
+                      enum_name: "org.etu.fl.classification.nn.ActivationFunction"
+                      enum_value_index: 1
+                      enum_value_name: "RELU"
+                    }
+                  }
+                }
+              }
+            }
+            fields {
+              key: "set"
+              value {
+                list {
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
