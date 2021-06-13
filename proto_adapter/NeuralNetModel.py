@@ -2,12 +2,12 @@ from google.protobuf.struct_pb2 import NULL_VALUE
 from torch import nn
 
 from grpc_router.fl_service_router_pb2 import Descriptor, ObjectDescriptor, ListDescriptor, MapDescriptor
-from proto_adapter import DenseLayer, NormalizationLayer1
+from proto_adapter import DenseLayer, NormalizationLayer
 from torch_model.NN_model import UniversalNet
 
 layer_type = {
     'org.etu.fl.classification.nn.NNDenseLayerModelElement': DenseLayer,
-    'org.etu.fl.classification.nn.NNBatchLayerModelElement': NormalizationLayer1
+    'org.etu.fl.classification.nn.NNBatchLayerModelElement': NormalizationLayer
 }
 
 
@@ -43,7 +43,7 @@ class NeuralNetModel:
         last_features = 0
         has_normalization = True
         for layer in self.layers:
-            if isinstance(layer, NormalizationLayer1):
+            if isinstance(layer, NormalizationLayer):
                 normalizations.append(nn.BatchNorm1d(last_features))
                 has_normalization = True
             else:
@@ -60,6 +60,6 @@ class NeuralNetModel:
     def get_weights(self, torch_model):
         i = 0
         for layer in self.layers:
-            if not isinstance(layer, NormalizationLayer1):
+            if not isinstance(layer, NormalizationLayer):
                 layer.get_weights(torch_model.layers[i])
                 i += 1

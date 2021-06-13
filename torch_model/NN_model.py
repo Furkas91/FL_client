@@ -30,11 +30,49 @@ class UniversalNet(nn.Module):
             x = self.normalizations[i](x)
         return x
 
+def test(test_loader, criterion, net):
+    test_loss = 0
+    correct = 0
+    for data, target in test_loader:
+        data, target = Variable(data, volatile=True), Variable(target)
+        data = data.view(-1, 40 * 6)
+        net_out = net(data)
+        # sum up batch loss
+        test_loss += criterion(net_out, target).data.item()
+        pred = net_out.data.max(1)[1]  # get the index of the max log-probability
+        correct += pred.eq(target.data).sum()
 
-def create_nn(proto_model, path='D:/FL_client/data/MNIST/train.csv', batch_size=200,
-              learning_rate=0.01, epochs=1, log_interval=10):
+    test_loss /= len(test_loader.dataset)
+    print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.3f})\n'.format(
+        test_loss, correct, len(test_loader.dataset),
+        correct / len(test_loader.dataset)))
+
+
+def fit(net, train_loader, epochs, criterion, optimizer, log_interval):
+    for epoch in range(epochs):
+        for batch_idx, (data, target) in enumerate(train_loader):
+            data, target = Variable(data), Variable(target)
+            # resize data from (batch_size, 1, 28, 28) to (batch_size, 28*28)
+            data = data.view(-1, 40*6)
+
+            optimizer.zero_grad()
+            net_out = net(data)
+            loss = criterion(net_out, target)
+            loss.backward()
+            optimizer.step()
+            # print(loss.data)
+            if batch_idx % log_interval == 0:
+                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                    epoch, batch_idx * len(data), len(train_loader.dataset),
+                           100. * batch_idx / len(train_loader), loss.item()))
+    return net
+
+
+def create_nn(net, path='D:/FL_client/data/MNIST/train.csv', batch_size=200,
+              learning_rate=0.01, epochs=10, log_interval=10, data_name='MNIST'):
+    # TODO: Rework this
     # train_df = pd.read_csv('D:/FL_client/data/MNIST/train.csv')
-    train_loader = get_data_loader(path, batch_size)
+    train_loader = get_data_loader(path, batch_size, data_name=data_name)
     test_loader = torch.utils.data.DataLoader(
         datasets.MNIST('../data', train=False, transform=transforms.Compose([
             transforms.Normalize((0.1307,), (0.3081,))
@@ -55,10 +93,29 @@ def create_nn(proto_model, path='D:/FL_client/data/MNIST/train.csv', batch_size=
             x = self.fc3(x)
             return F.log_softmax(x)
 
+
+    # net = Net()
+    print(net)
+    print(net.activations)
+    print(net.normalizations)
+    # create a stochastic gradient descent optimizer
+    optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
+    # create a loss function
+    criterion = nn.NLLLoss()
+
+    # run the main training loop
+    net = fit(net, train_loader, epochs, criterion, optimizer, log_interval)
+
+    # run a test loop
+    test(train_loader, criterion, net)
+    return net
+
+
+if __name__ == "__main__":
     layers = [
-        nn.Linear(784, 200, bias=False),
+        nn.Linear(240, 200),
         nn.Linear(200, 200),
-        nn.Linear(200, 10)
+        nn.Linear(200, 3)
     ]
     activations = [
         F.relu,
@@ -70,53 +127,6 @@ def create_nn(proto_model, path='D:/FL_client/data/MNIST/train.csv', batch_size=
         nn.BatchNorm1d(200),
         lambda x: x
     ]
-    # net = UniversalNet(layers, activations, normalizations)
-    # net = Net()
-    net = proto_model
-    print(net)
-    print(net.activations)
-    print(net.normalizations)
-    # create a stochastic gradient descent optimizer
-    optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
-    # create a loss function
-    criterion = nn.NLLLoss()
-
-    # run the main training loop
-    for epoch in range(epochs):
-        for batch_idx, (data, target) in enumerate(train_loader):
-            data, target = Variable(data), Variable(target)
-            # resize data from (batch_size, 1, 28, 28) to (batch_size, 28*28)
-            data = data.view(-1, 28 * 28)
-
-            optimizer.zero_grad()
-            net_out = net(data)
-            loss = criterion(net_out, target)
-            loss.backward()
-            optimizer.step()
-            # print(loss.data)
-            if batch_idx % log_interval == 0:
-                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                    epoch, batch_idx * len(data), len(train_loader.dataset),
-                           100. * batch_idx / len(train_loader), loss.item()))
-
-    # run a test loop
-    test_loss = 0
-    correct = 0
-    for data, target in train_loader:
-        data, target = Variable(data, volatile=True), Variable(target)
-        data = data.view(-1, 28 * 28)
-        net_out = net(data)
-        # sum up batch loss
-        test_loss += criterion(net_out, target).data.item()
-        pred = net_out.data.max(1)[1]  # get the index of the max log-probability
-        correct += pred.eq(target.data).sum()
-
-    test_loss /= len(train_loader.dataset)
-    print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-        test_loss, correct, len(train_loader.dataset),
-        100. * correct / len(train_loader.dataset)))
-    return net
-
-
-if __name__ == "__main__":
-    net = create_nn(1)
+    net = UniversalNet(layers, activations, normalizations)
+    net = create_nn(net=net, path='D:\FL_client\data\smartilizer\Video-9-59-58-842.csv', data_name='smartiliser')
+    #net = create_nn(net)

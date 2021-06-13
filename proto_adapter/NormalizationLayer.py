@@ -5,10 +5,10 @@ from proto_adapter.MiningModelElement import MiningModelElement
 from grpc_router.fl_service_router_pb2 import Descriptor, ObjectDescriptor, ListDescriptor
 
 
-class NormalizationLayer1(MiningModelElement):
+class NormalizationLayer(MiningModelElement):
     @staticmethod
     def from_proto(proto_layer):
-        return NormalizationLayer1()
+        return NormalizationLayer()
 
     def to_proto(self):
         proto_layer = Descriptor(object=ObjectDescriptor(

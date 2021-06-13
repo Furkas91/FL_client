@@ -87,7 +87,7 @@ class DenseLayer(MiningModelElement):
 
     def to_torch_layer(self):
         layer = nn.Linear(self.in_features, self.out_features, bias=self.use_bias)
-        # layer.load_state_dict(OrderedDict({'weight': Tensor(self.weights), 'bias': Tensor(self.bias)))
+        # layer.load_state_dict(OrderedDict({'weight': Tensor(self.weights), 'bias': Tensor(self.bias)}))
         activation_function = activations[self.activation_function]
         return layer, activation_function
 
