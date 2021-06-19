@@ -1,18 +1,27 @@
+"""
+В этом файле описан код для сериализации и
+десериализации линейного слоя нейронной сети
+"""
 from collections import OrderedDict
 
-from google.protobuf.struct_pb2 import NULL_VALUE
 from torch import nn, Tensor
 
-from grpc_router.fl_service_router_pb2 import Descriptor, ObjectDescriptor, ListDescriptor, MapDescriptor, EnumDescriptor
-from proto_adapter.MiningModelElement import MiningModelElement
+from grpc_router.fl_service_router_pb2 import Descriptor, ObjectDescriptor, ListDescriptor, EnumDescriptor
 import torch.nn.functional as F
 import numpy as np
+
+from proto_adapter import Adapter
 
 activations = {
     'RELU': F.relu,
     'SOFTMAX': F.softmax
 }
 def get_vector_from_proto(proto_vector):
+    """
+    Функция возвращает вектор numpy описанный протобафом
+    :param proto_vector: дескриптор
+    :return: numpy вектор
+    """
     vector = []
     for elem in proto_vector.list.descriptors:
         vector.append(elem.double_value)
@@ -20,11 +29,21 @@ def get_vector_from_proto(proto_vector):
 
 
 def get_proto_from_vector(vector):
+    """
+    Функция преобразует вектор в протобаф объект
+    :param vector: любой список чисел (например np.array)
+    :return: дескриптор
+    """
     return Descriptor(list=ListDescriptor(
         descriptors=[Descriptor(double_value=x) for x in vector]))
 
 
 def get_weights_from_proto(proto_weights):
+    """
+    Функция, для получения матрицы весов из дескриптора
+    :param proto_weights: дескриптор
+    :return: np.array с матрицей весов
+    """
     weights = []
     for proto_vector in proto_weights.list.descriptors:
         weights.append(get_vector_from_proto(proto_vector))
@@ -32,12 +51,20 @@ def get_weights_from_proto(proto_weights):
 
 
 def get_proto_from_weights(weights):
+    """
+    Функция, для преобразования матрицы весов в дескриптор
+    :param weights: матрица весов
+    :return: дескриптор
+    """
     return Descriptor(list=ListDescriptor(
         descriptors=[get_proto_from_vector(vector) for vector in weights]
     ))
 
 
-class DenseLayer(MiningModelElement):
+class DenseLayer(Adapter):
+    """
+    Класс сериализации линейного слоя нейронной сети
+    """
     def __init__(self, weights, activation_function, in_features, out_features, bias, use_bias):
         self.weights = weights
         self.activation_function = activation_function
@@ -48,6 +75,11 @@ class DenseLayer(MiningModelElement):
 
     @staticmethod
     def from_proto(proto_layer):
+        """
+        Метод для преобразования дескриптора в DenseLayer
+        :param proto_layer: дескриптор
+        :return: DenseLayer
+        """
         proto_layer = proto_layer.object.fields['properties'].list.descriptors
         weights = get_weights_from_proto(proto_layer[0])
         in_features = proto_layer[1].int_value
@@ -65,6 +97,10 @@ class DenseLayer(MiningModelElement):
         )
 
     def to_proto(self):
+        """
+        Метод для преобразования DenseLayer в дескриптор
+        :return: дескриптор
+        """
         proto_layer = Descriptor(object=ObjectDescriptor(
             class_name='org.etu.fl.classification.nn.NNDenseLayerModelElement',
             fields={
@@ -86,13 +122,24 @@ class DenseLayer(MiningModelElement):
         return proto_layer
 
     def to_torch_layer(self):
+        """
+        Метод для преобразования DenseLayer в слой PyTorch
+        :return: слой PyTorch, функция активации PyTorch
+        """
         layer = nn.Linear(self.in_features, self.out_features, bias=self.use_bias)
+        # Загрузка весов в слой PyTorch
         # layer.load_state_dict(OrderedDict({'weight': Tensor(self.weights), 'bias': Tensor(self.bias)}))
         activation_function = activations[self.activation_function]
         return layer, activation_function
 
     @staticmethod
     def from_torch_layer(torch_layer, activation_function):
+        """
+        Метод для преобразования PyTorch слоя в DenseLayer
+        :param torch_layer: PyTorch слой
+        :param activation_function: PyTorch функция активации
+        :return: DenseLayer
+        """
         weights = torch_layer.state_dict['weight'].numpy()
         in_features = torch_layer.in_features
         out_features = torch_layer.out_features
@@ -110,5 +157,9 @@ class DenseLayer(MiningModelElement):
         )
 
     def get_weights(self, torch_layer):
+        """
+        Метод для обновления весов DenseLayer из PyTorch слоя
+        :param torch_layer: PyTorch слой
+        """
         self.weights = torch_layer.state_dict()['weight'].numpy()
         self.bias = torch_layer.bias.detach().numpy()

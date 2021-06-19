@@ -1,6 +1,10 @@
+"""
+В этом файле представлен код, реализующий логику
+RPC процедур, испольняемых на клиенте
+"""
 from grpc_router import fl_service_router_pb2
 from proto_adapter import MiningSettings, NeuralNetModel
-from torch_model.NN_model import create_nn
+from torch_model.NN_model import train_evaluate
 
 
 def execute(container):
@@ -8,16 +12,19 @@ def execute(container):
     Функция, реализующая удаленную процедуру по исполнению контейнера,
     а именно обучение присланное модели с заданными параметрами
     """
+    print('start training')
     sett = MiningSettings.from_proto(container.settings)
     mdd = NeuralNetModel.from_proto(container.model)
-    result = create_nn(net=mdd.to_torch_model(), path='D:\FL_client\data\smartilizer\Video-11-15-40-560.csv',
-                       data_name='smartiliser')
+    result, count = train_evaluate(net=mdd.to_torch_model(), path='D:\FL_client\data\smartilizer\Video-11-15-40-560.csv', settings=sett,
+                                   data_name='smartiliser')
+    print('end training')
     mdd.get_weights(result)
+    mdd.vectors_count = count
     print(sett)
     return mdd
 
 
-def get_service_descriptor():
+def get_service_descriptor(name):
     """
     Функция, выполняющая удаленную процедуру,
     которая возвращает описание узла в формате библиотеки fl4j
@@ -25,7 +32,7 @@ def get_service_descriptor():
     service_descriptor = fl_service_router_pb2.ObjectDescriptor(
         class_name='org.etu.fl.client.FLClient',
         fields={
-            'serviceID': fl_service_router_pb2.Descriptor(string_value='nn_client'),
+            'serviceID': fl_service_router_pb2.Descriptor(string_value=name),
             'physical_data': fl_service_router_pb2.Descriptor(map=fl_service_router_pb2.MapDescriptor()),
             'router': fl_service_router_pb2.Descriptor(object=fl_service_router_pb2.ObjectDescriptor(
                 class_name='org.etu.fl.router.GrpcRouter',
@@ -41,7 +48,5 @@ def get_service_descriptor():
                     ))
                 }
             ))
-            #    'children': fl_service_router_pb2.Descriptor(),
-            #    'workers': fl_service_router_pb2.Descriptor()
         })
     return fl_service_router_pb2.Descriptor(object=service_descriptor)

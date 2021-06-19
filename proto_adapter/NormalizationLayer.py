@@ -1,16 +1,30 @@
-from Tools.scripts import google
+"""
+В этом файле описан код для сериализации и
+десериализации слоя нормализации нейронной сети
+"""
 from google.protobuf.struct_pb2 import NULL_VALUE
 
-from proto_adapter.MiningModelElement import MiningModelElement
+from proto_adapter.Adapter import Adapter
 from grpc_router.fl_service_router_pb2 import Descriptor, ObjectDescriptor, ListDescriptor
 
 
-class NormalizationLayer(MiningModelElement):
+class NormalizationLayer(Adapter):
+    """
+    Класс для сериализации слоя нормализации нейронной сети
+    """
     @staticmethod
     def from_proto(proto_layer):
+        """
+        Метод для возвращения NormalizationLayer
+        :return: NormalizationLayer
+        """
         return NormalizationLayer()
 
     def to_proto(self):
+        """
+        Метод для преобразования NormalizationLayer в дескриптор
+        :return: дескриптор
+        """
         proto_layer = Descriptor(object=ObjectDescriptor(
             class_name='org.etu.fl.classification.nn.NNBatchLayerModelElement',
             fields={
