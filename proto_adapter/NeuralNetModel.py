@@ -57,7 +57,7 @@ class NeuralNetModel(Adapter):
         ))
         return proto_model
 
-    def to_torch_model(self):
+    def to_torch_model(self, init=False):
         """
         Метод для преобразования NeuralNetModel в UniversalNet
         :return: UniversalNet
@@ -73,7 +73,7 @@ class NeuralNetModel(Adapter):
                 normalizations.append(nn.BatchNorm1d(last_features))
                 has_normalization = True
             else:
-                torch_layer = layer.to_torch_layer()
+                torch_layer = layer.to_torch_layer(init)
                 layers.append(torch_layer[0])
                 activations.append((torch_layer[1]))
                 last_features = layer.out_features

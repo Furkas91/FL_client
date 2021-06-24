@@ -13,7 +13,7 @@ import fl_service_router_pb2
 import fl_service_router_pb2_grpc
 
 # map=fl_service_router_pb2.MapDescriptor()
-from grpc_router.utils import execute, get_service_descriptor
+from utils import execute, get_service_descriptor
 from proto_adapter import NeuralNetModel, MiningSettings
 from torch_model.NN_model import train_evaluate
 
@@ -34,8 +34,8 @@ class FLRouter(fl_service_router_pb2_grpc.FLRouterService):
                         timeout=None,
                         metadata=None):
 
-        result = execute(target)
-        print(result)
+        result = execute(target, request.service_id)
+        # print(result)
         return fl_service_router_pb2.ExecutionResult(model=result.to_proto())
 
     def ReceiveFLServiceDescriptor(request,
@@ -53,6 +53,7 @@ class FLRouter(fl_service_router_pb2_grpc.FLRouterService):
         else:
             print('time to cry')
         print(target.service_id)
+        request.service_id = target.service_id
         return get_service_descriptor(target.service_id)
 
 
@@ -70,10 +71,10 @@ def serve(port):
 
 if __name__ == '__main__':
     logging.basicConfig()
-    p = Process(target=serve, args=('localhost:10002',))
-    d = Process(target=serve, args=('localhost:10003',))
-    p.start()
-    d.start()
-    p.join()
-    d.join()
-    # serve('localhost:10003')
+    # p = Process(target=serve, args=('localhost:10002',))
+    # d = Process(target=serve, args=('localhost:10003',))
+    # p.start()
+    # d.start()
+    # p.join()
+    # d.join()
+    serve('localhost:10003')

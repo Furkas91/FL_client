@@ -121,14 +121,15 @@ class DenseLayer(Adapter):
         ))
         return proto_layer
 
-    def to_torch_layer(self):
+    def to_torch_layer(self, init):
         """
         Метод для преобразования DenseLayer в слой PyTorch
         :return: слой PyTorch, функция активации PyTorch
         """
         layer = nn.Linear(self.in_features, self.out_features, bias=self.use_bias)
         # Загрузка весов в слой PyTorch
-        # layer.load_state_dict(OrderedDict({'weight': Tensor(self.weights), 'bias': Tensor(self.bias)}))
+        if not init:
+            layer.load_state_dict(OrderedDict({'weight': Tensor(self.weights), 'bias': Tensor(self.bias)}))
         activation_function = activations[self.activation_function]
         return layer, activation_function
 

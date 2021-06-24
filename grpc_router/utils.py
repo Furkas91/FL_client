@@ -7,15 +7,24 @@ from proto_adapter import MiningSettings, NeuralNetModel
 from torch_model.NN_model import train_evaluate
 
 
-def execute(container):
+def execute(container, service_id):
     """
     Функция, реализующая удаленную процедуру по исполнению контейнера,
     а именно обучение присланное модели с заданными параметрами
     """
-    print('start training')
+    print(f'start training {service_id}')
     sett = MiningSettings.from_proto(container.settings)
     mdd = NeuralNetModel.from_proto(container.model)
-    result, count = train_evaluate(net=mdd.to_torch_model(), path='D:\FL_client\data\smartilizer\Video-11-15-40-560.csv', settings=sett,
+    if container.schedule.algorithm_block.object.fields['sequence'].list.descriptors[0].object.class_name == 'org.etu.fl.classification.nn.NNKaimingInitializerBlock':
+        result = mdd.to_torch_model(init=True)
+        count = 0
+    else:
+        path = {
+            'nn_client_1': 'D:\FL_client\data\smartilizer\Video-11-12-5-821.csv',
+            'nn_client_2': 'D:\FL_client\data\smartilizer\Video-11-21-6-412.csv'
+        }
+        model = mdd.to_torch_model()
+        result, count = train_evaluate(net=model, path=path[service_id], settings=sett,
                                    data_name='smartiliser')
     print('end training')
     mdd.get_weights(result)
