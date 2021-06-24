@@ -39,8 +39,8 @@ def get_service_descriptor(name):
     которая возвращает описание узла в формате библиотеки fl4j
     """
     port = {
-        'nn_model_1': 10002,
-        'nn_model_2': 10003
+        'nn_client_1': 10002,
+        'nn_client_2': 10003
     }
     service_descriptor = fl_service_router_pb2.ObjectDescriptor(
         class_name='org.etu.fl.client.FLClient',
