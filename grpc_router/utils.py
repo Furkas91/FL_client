@@ -38,6 +38,10 @@ def get_service_descriptor(name):
     Функция, выполняющая удаленную процедуру,
     которая возвращает описание узла в формате библиотеки fl4j
     """
+    port = {
+        'nn_model_1': 10002,
+        'nn_model_2': 10003
+    }
     service_descriptor = fl_service_router_pb2.ObjectDescriptor(
         class_name='org.etu.fl.client.FLClient',
         fields={
@@ -52,7 +56,7 @@ def get_service_descriptor(name):
                         class_name='org.etu.fl.core.utils.URL',
                         fields={
                             'host': fl_service_router_pb2.Descriptor(string_value='127.0.0.1'),
-                            'port': fl_service_router_pb2.Descriptor(int_value=10002)
+                            'port': fl_service_router_pb2.Descriptor(int_value=port[name])
                         }
                     ))
                 }

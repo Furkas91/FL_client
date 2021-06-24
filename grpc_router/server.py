@@ -71,10 +71,10 @@ def serve(port):
 
 if __name__ == '__main__':
     logging.basicConfig()
-    # p = Process(target=serve, args=('localhost:10002',))
-    # d = Process(target=serve, args=('localhost:10003',))
-    # p.start()
-    # d.start()
-    # p.join()
-    # d.join()
-    serve('localhost:10003')
+    p = Process(target=serve, args=('localhost:10002',))
+    d = Process(target=serve, args=('localhost:10003',))
+    d.start()
+    p.start()
+    p.join()
+    d.join()
+    # serve('localhost:10003')
