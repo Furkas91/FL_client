@@ -1,7 +1,6 @@
 """
 Файл содержит код для механизма работы с моделью нейронной сети PyTorch
 """
-from modulefinder import Module
 from typing import Tuple
 
 from torch.autograd import Variable
@@ -34,14 +33,17 @@ class UniversalNet(nn.Module):
     Класс универсальной модели
     """
 
-    def __init__(self, layers, activations, normalizations):
+    def __init__(self,
+                 layers: list,
+                 activations: list,
+                 normalizations: list):
         super(UniversalNet, self).__init__()
         self.number_of_layers = len(layers)
         self.layers = nn.ModuleList(layers)
         self.activations = activations
         self.normalizations = normalizations
 
-    def forward(self, x):
+    def forward(self, x: object):
         """
         Метод для прямого прохода по нейронной сети
         :param x: данные для прохода
@@ -58,7 +60,7 @@ class UniversalNet(nn.Module):
 
 
 def evaluate(test_loader: DataLoader,
-             criterion: Module,
+             criterion: callable,
              net: UniversalNet) -> Tuple[float, float]:
     """
     Функция оценки точности модели
@@ -71,7 +73,6 @@ def evaluate(test_loader: DataLoader,
     correct = 0
     for data, target in test_loader:
         data, target = Variable(data, volatile=True), Variable(target)
-        data = data.view(-1, 40 * 6)
         net_out = net(data)
         # sum up batch loss
         test_loss += criterion(net_out, target).data.item()
@@ -90,7 +91,7 @@ def evaluate(test_loader: DataLoader,
 def fit(net: UniversalNet,
         train_loader: DataLoader,
         epochs: int,
-        criterion: Module,
+        criterion: callable,
         optimizer: Optimizer) -> UniversalNet:
     """
     Функция, тренировки модели
@@ -104,7 +105,6 @@ def fit(net: UniversalNet,
     for epoch in range(epochs):
         for batch_idx, (data, target) in enumerate(train_loader):
             data, target = Variable(data), Variable(target)
-            # data = data.view(-1, 40*6)
 
             optimizer.zero_grad()
             net_out = net(data)
@@ -116,9 +116,9 @@ def fit(net: UniversalNet,
 
 
 def train_evaluate(net: UniversalNet,
+                   settings: MiningSettings,
                    path='D:/FL_client/data/MNIST/train.csv',
-                   settings='nothing',
-                   data_name='MNIST') -> UniversalNet:
+                   data_name='MNIST') -> Tuple[UniversalNet, int]:
     """
     Функция для обучения и оценки точности модели
     :param net: UniversalNet
@@ -164,6 +164,8 @@ if __name__ == "__main__":
         momentum=0.9,
         batch_size=10
     )
-    net = UniversalNet(layers, activations, normalizations)
-    net = train_evaluate(net=net, path='D:\FL_client\data\smartilizer\Video-11-15-40-560.csv', data_name='smartiliser',
-                         settings=settings)
+    model = UniversalNet(layers, activations, normalizations)
+    model = train_evaluate(net=model,
+                           path='D:\\FL_client\\data\\smartilizer\\Video-11-15-40-560.csv',
+                           data_name='smartiliser',
+                           settings=settings)
