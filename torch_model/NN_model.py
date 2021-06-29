@@ -1,22 +1,25 @@
 """
 Файл содержит код для механизма работы с моделью нейронной сети PyTorch
 """
+from modulefinder import Module
+from typing import Tuple
+
 from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from torch.optim import Optimizer
 
+from torch_model import DataLoader
 from torch_model.DataLoader import get_data_loader
 
-loss_functions = {
-    ''
-}
 
 class MiningSettings:
     """
     Класс для сериализации настроек алгоритма для
     обучения нейронной сети
     """
+
     def __init__(self, algorithm, loss_function, epochs, learning_rate, momentum, batch_size):
         self.algorithm = algorithm
         self.loss_function = loss_function
@@ -25,10 +28,12 @@ class MiningSettings:
         self.momentum = momentum
         self.batch_size = batch_size
 
+
 class UniversalNet(nn.Module):
     """
     Класс универсальной модели
     """
+
     def __init__(self, layers, activations, normalizations):
         super(UniversalNet, self).__init__()
         self.number_of_layers = len(layers)
@@ -52,7 +57,9 @@ class UniversalNet(nn.Module):
         return x
 
 
-def evaluate(test_loader, criterion, net):
+def evaluate(test_loader: DataLoader,
+             criterion: Module,
+             net: UniversalNet) -> Tuple[float, float]:
     """
     Функция оценки точности модели
     :param test_loader: DataLoader
@@ -72,12 +79,19 @@ def evaluate(test_loader, criterion, net):
         correct += pred.eq(target.data).sum()
 
     test_loss /= len(test_loader.dataset)
+    accuracy = correct / len(test_loader.dataset)
     print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.3f})\n'.format(
         test_loss, correct, len(test_loader.dataset),
-        correct / len(test_loader.dataset)))
+        accuracy))
+
+    return test_loss, accuracy
 
 
-def fit(net, train_loader, epochs, criterion, optimizer):
+def fit(net: UniversalNet,
+        train_loader: DataLoader,
+        epochs: int,
+        criterion: Module,
+        optimizer: Optimizer) -> UniversalNet:
     """
     Функция, тренировки модели
     :param net: UniversalNet
@@ -90,22 +104,21 @@ def fit(net, train_loader, epochs, criterion, optimizer):
     for epoch in range(epochs):
         for batch_idx, (data, target) in enumerate(train_loader):
             data, target = Variable(data), Variable(target)
-            data = data.view(-1, 40*6)
+            # data = data.view(-1, 40*6)
 
             optimizer.zero_grad()
             net_out = net(data)
             loss = criterion(net_out, target)
             loss.backward()
             optimizer.step()
-            # print(loss.data)
-            #if batch_idx % 100 == 0:
-            #     print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-            #         epoch, batch_idx * len(data), len(train_loader.dataset),
-            #                100. * batch_idx / len(train_loader), loss.item()))
+
     return net
 
 
-def train_evaluate(net, path='D:/FL_client/data/MNIST/train.csv', settings='nothing', data_name='MNIST'):
+def train_evaluate(net: UniversalNet,
+                   path='D:/FL_client/data/MNIST/train.csv',
+                   settings='nothing',
+                   data_name='MNIST') -> UniversalNet:
     """
     Функция для обучения и оценки точности модели
     :param net: UniversalNet
@@ -152,4 +165,5 @@ if __name__ == "__main__":
         batch_size=10
     )
     net = UniversalNet(layers, activations, normalizations)
-    net = train_evaluate(net=net, path='D:\FL_client\data\smartilizer\Video-11-15-40-560.csv', data_name='smartiliser', settings=settings)
+    net = train_evaluate(net=net, path='D:\FL_client\data\smartilizer\Video-11-15-40-560.csv', data_name='smartiliser',
+                         settings=settings)

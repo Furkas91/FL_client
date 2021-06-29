@@ -5,6 +5,8 @@
 from collections import OrderedDict
 
 from torch import nn, Tensor
+from torch.nn import Module, Linear
+from typing import Tuple
 
 from grpc_router.fl_service_router_pb2 import Descriptor, ObjectDescriptor, ListDescriptor, EnumDescriptor
 import torch.nn.functional as F
@@ -12,11 +14,14 @@ import numpy as np
 
 from proto_adapter import Adapter
 
+# соответствия названий и классов функций активации
 activations = {
     'RELU': F.relu,
     'SOFTMAX': F.softmax
 }
-def get_vector_from_proto(proto_vector):
+
+
+def get_vector_from_proto(proto_vector: Descriptor) -> np.array:
     """
     Функция возвращает вектор numpy описанный протобафом
     :param proto_vector: дескриптор
@@ -28,7 +33,7 @@ def get_vector_from_proto(proto_vector):
     return np.asarray(vector)
 
 
-def get_proto_from_vector(vector):
+def get_proto_from_vector(vector: np.array) -> Descriptor:
     """
     Функция преобразует вектор в протобаф объект
     :param vector: любой список чисел (например np.array)
@@ -38,7 +43,7 @@ def get_proto_from_vector(vector):
         descriptors=[Descriptor(double_value=x) for x in vector]))
 
 
-def get_weights_from_proto(proto_weights):
+def get_weights_from_proto(proto_weights: Descriptor) -> np.array:
     """
     Функция, для получения матрицы весов из дескриптора
     :param proto_weights: дескриптор
@@ -50,7 +55,7 @@ def get_weights_from_proto(proto_weights):
     return np.asarray(weights)
 
 
-def get_proto_from_weights(weights):
+def get_proto_from_weights(weights: np.array) -> Descriptor:
     """
     Функция, для преобразования матрицы весов в дескриптор
     :param weights: матрица весов
@@ -65,7 +70,13 @@ class DenseLayer(Adapter):
     """
     Класс сериализации линейного слоя нейронной сети
     """
-    def __init__(self, weights, activation_function, in_features, out_features, bias, use_bias):
+    def __init__(self,
+                 weights: np.array,
+                 activation_function: str,
+                 in_features: int,
+                 out_features: int,
+                 bias: np.array,
+                 use_bias: bool):
         self.weights = weights
         self.activation_function = activation_function
         self.in_features = in_features
@@ -74,7 +85,7 @@ class DenseLayer(Adapter):
         self.use_bias = use_bias
 
     @staticmethod
-    def from_proto(proto_layer):
+    def from_proto(proto_layer: Descriptor):
         """
         Метод для преобразования дескриптора в DenseLayer
         :param proto_layer: дескриптор
@@ -96,7 +107,7 @@ class DenseLayer(Adapter):
             activation_function=activation_function
         )
 
-    def to_proto(self):
+    def to_proto(self) -> Descriptor:
         """
         Метод для преобразования DenseLayer в дескриптор
         :return: дескриптор
@@ -121,7 +132,7 @@ class DenseLayer(Adapter):
         ))
         return proto_layer
 
-    def to_torch_layer(self, init):
+    def to_torch_layer(self, init: bool) -> Tuple[Linear, Module]:
         """
         Метод для преобразования DenseLayer в слой PyTorch
         :return: слой PyTorch, функция активации PyTorch
@@ -134,17 +145,17 @@ class DenseLayer(Adapter):
         return layer, activation_function
 
     @staticmethod
-    def from_torch_layer(torch_layer, activation_function):
+    def from_torch_layer(torch_layer: Linear, activation_function: Module):
         """
         Метод для преобразования PyTorch слоя в DenseLayer
         :param torch_layer: PyTorch слой
         :param activation_function: PyTorch функция активации
         :return: DenseLayer
         """
-        weights = torch_layer.state_dict['weight'].numpy()
+        weights = torch_layer.state_dict()['weight'].numpy()
         in_features = torch_layer.in_features
         out_features = torch_layer.out_features
-        bias = torch_layer.state_dict['bias'].numpy()
+        bias = torch_layer.state_dict()['bias'].numpy()
         use_bias = isinstance(torch_layer.bias, Tensor)
         activation_function = activation_function
         return DenseLayer(
@@ -157,7 +168,7 @@ class DenseLayer(Adapter):
             activation_function='RELU'
         )
 
-    def get_weights(self, torch_layer):
+    def get_weights(self, torch_layer: Linear):
         """
         Метод для обновления весов DenseLayer из PyTorch слоя
         :param torch_layer: PyTorch слой

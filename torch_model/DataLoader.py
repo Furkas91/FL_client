@@ -1,16 +1,18 @@
 """
 Файл, описывающий механизм работы с наборами данных
 """
+from builtins import callable
+
 import torch
 import numpy as np
 import pandas as pd
 from scipy import stats
 from sklearn.preprocessing import RobustScaler
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
 
-def best_transform(data):
+def best_transform(data: object) -> object:
     """
     Функция с ироничным названием и функционал,
     целью существования которой является ее
@@ -21,7 +23,7 @@ def best_transform(data):
     return data
 
 
-def mnist_transform():
+def mnist_transform() -> callable:
     """
     Функция предназаченная для примения
     в датасете MNIST
@@ -41,7 +43,10 @@ class TrainDataset(Dataset):
     """
     Класс, описывающий набор данных для обучения
     """
-    def __init__(self, features, labels, Transform):
+    def __init__(self,
+                 features: np.array,
+                 labels: np.array,
+                 Transform: callable):
         self.x = features
         self.y = labels
         self.transform = Transform
@@ -53,7 +58,7 @@ class TrainDataset(Dataset):
         return self.transform(self.x[index]), self.y[index]
 
 
-def get_mnist_data(df, Transform=best_transform):
+def get_mnist_data(df: pd.DataFrame, Transform=best_transform) -> TrainDataset:
     """
     Предобработка,для MNIST датасета
     """
@@ -66,7 +71,7 @@ def get_mnist_data(df, Transform=best_transform):
     return TrainDataset(x_features, y_labels, Transform)
 
 
-def resize_data(X, y, time_steps=1, step=1):
+def resize_data(X: np.array, y: np.array, time_steps=1, step=1) -> np.array:
     """
     Разбиение набора данных на пересекающие фреймы
     :param X: матрица признаков
@@ -84,7 +89,7 @@ def resize_data(X, y, time_steps=1, step=1):
     return np.array(Xs), np.array(ys).reshape(-1)
 
 
-def get_smartiliser_data(df, Transform=best_transform):
+def get_smartiliser_data(df: pd.DataFrame, Transform=best_transform) -> TrainDataset:
     """
     Функция для предобработки смартилайзеровских данных
     :param df: DataFrame
@@ -115,7 +120,9 @@ def get_smartiliser_data(df, Transform=best_transform):
     return TrainDataset(x_features, y_labels, Transform)
 
 
-def get_data_loader(path, batch_size, data_name='MNIST'):
+def get_data_loader(path: str,
+                    batch_size: int,
+                    data_name='MNIST') -> DataLoader:
     """
     Функция для получения необходимого DataLoader
     :param path: путь к CSV файлу

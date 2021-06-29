@@ -3,11 +3,12 @@
 RPC процедур, исполняемых на клиенте
 """
 from grpc_router import fl_service_router_pb2
+from grpc_router.fl_service_router_pb2 import ExecutionContainer, Descriptor
 from proto_adapter import MiningSettings, NeuralNetModel
 from torch_model.NN_model import train_evaluate
 
 
-def execute(container, service_id):
+def execute(container: ExecutionContainer, service_id: str) -> Descriptor:
     """
     Функция, реализующая удаленную процедуру по исполнению контейнера,
     а именно обучение присланное модели с заданными параметрами
@@ -33,7 +34,7 @@ def execute(container, service_id):
     return mdd
 
 
-def get_service_descriptor(name):
+def get_service_descriptor(name: str) -> Descriptor:
     """
     Функция, выполняющая удаленную процедуру,
     которая возвращает описание узла в формате библиотеки fl4j

@@ -1,5 +1,5 @@
 """
-В этом файле предаставлен код сервера gRPC, который отвечает
+В этом файле представлен код сервера gRPC, который отвечает
 за непосредственную реализацию API данного FL клиента.
 """
 
@@ -24,7 +24,7 @@ class FLRouter(fl_service_router_pb2_grpc.FLRouterService):
     общения с остальными участниками сети, созданной библиотекой fl4j
     """
     def ExecuteSchedule(request,
-                        target,
+                        target: fl_service_router_pb2.ExecutionContainer,
                         options=(),
                         channel_credentials=None,
                         call_credentials=None,
@@ -32,14 +32,14 @@ class FLRouter(fl_service_router_pb2_grpc.FLRouterService):
                         compression=None,
                         wait_for_ready=None,
                         timeout=None,
-                        metadata=None):
+                        metadata=None) -> fl_service_router_pb2.ExecutionResult:
 
         result = execute(target, request.service_id)
         # print(result)
         return fl_service_router_pb2.ExecutionResult(model=result.to_proto())
 
     def ReceiveFLServiceDescriptor(request,
-                                   target,
+                                   target: fl_service_router_pb2.RequestedServiceID,
                                    options=(),
                                    channel_credentials=None,
                                    call_credentials=None,
@@ -47,17 +47,13 @@ class FLRouter(fl_service_router_pb2_grpc.FLRouterService):
                                    compression=None,
                                    wait_for_ready=None,
                                    timeout=None,
-                                   metadata=None):
-        if target.service_id == 'nn_client':
-            print('all good')
-        else:
-            print('time to cry')
+                                   metadata=None) -> fl_service_router_pb2.Descriptor:
         print(target.service_id)
         request.service_id = target.service_id
         return get_service_descriptor(target.service_id)
 
 
-def serve(port):
+def serve(port: str) -> None:
     """
     Функция для запуска сервера
     """

@@ -13,14 +13,14 @@ class NormalizationLayer(Adapter):
     Класс для сериализации слоя нормализации нейронной сети
     """
     @staticmethod
-    def from_proto(proto_layer):
+    def from_proto(proto_layer: Descriptor):
         """
         Метод для возвращения NormalizationLayer
         :return: NormalizationLayer
         """
         return NormalizationLayer()
 
-    def to_proto(self):
+    def to_proto(self) -> Descriptor:
         """
         Метод для преобразования NormalizationLayer в дескриптор
         :return: дескриптор

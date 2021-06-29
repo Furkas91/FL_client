@@ -8,7 +8,7 @@ class Adapter(ABC):
 
     @staticmethod
     @abstractmethod
-    def from_proto():
+    def from_proto(proto):
         pass
 
     @abstractmethod

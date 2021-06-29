@@ -9,6 +9,7 @@ from grpc_router.fl_service_router_pb2 import Descriptor, ObjectDescriptor, List
 from proto_adapter import DenseLayer, NormalizationLayer, Adapter
 from torch_model.NN_model import UniversalNet
 
+# Соответствия fl4j классов и FLPyTorchClient
 layer_type = {
     'org.etu.fl.classification.nn.NNDenseLayerModelElement': DenseLayer,
     'org.etu.fl.classification.nn.NNBatchLayerModelElement': NormalizationLayer
@@ -19,13 +20,16 @@ class NeuralNetModel(Adapter):
     """
     Класс сериализации нейронной сети
     """
-    def __init__(self, algorithm_name, layers, vectors_count):
+    def __init__(self,
+                 algorithm_name: str,
+                 layers: list,
+                 vectors_count: int):
         self.algorithm_name = algorithm_name
         self.layers = layers
         self.vectors_count = vectors_count
 
     @staticmethod
-    def from_proto(proto_model):
+    def from_proto(proto_model: Descriptor):
         """
         Метод для преобразования дескриптора в NeuralNetModel
         :param proto_model: дескриптор
@@ -42,7 +46,7 @@ class NeuralNetModel(Adapter):
                               layers=layers,
                               vectors_count=vectors_count)
 
-    def to_proto(self):
+    def to_proto(self) -> Descriptor:
         """
         Метод для преобразования NeuralNetModel в дескриптор
         :return: дескриптор
@@ -57,7 +61,7 @@ class NeuralNetModel(Adapter):
         ))
         return proto_model
 
-    def to_torch_model(self, init=False):
+    def to_torch_model(self, init=False) -> UniversalNet:
         """
         Метод для преобразования NeuralNetModel в UniversalNet
         :return: UniversalNet
@@ -85,7 +89,7 @@ class NeuralNetModel(Adapter):
         normalizations.append(lambda x: x)
         return UniversalNet(layers=layers, activations=activations, normalizations=normalizations)
 
-    def get_weights(self, torch_model):
+    def get_weights(self, torch_model: UniversalNet) -> None:
         """
         Метод для обновления весов из UniversalNet
         :param torch_model: UniversalNet

@@ -6,6 +6,8 @@
 from torch import nn
 
 # Словарь функций потерь
+from grpc_router.fl_service_router_pb2 import Descriptor
+
 loss_functions = {
     'NEGATIVE_LOG_LIKELIHOOD': nn.NLLLoss,
     'MEAN_SQUARE_ERROR': nn.MSELoss
@@ -17,7 +19,12 @@ class MiningSettings:
     Класс для сериализации настроек алгоритма для
     обучения нейронной сети
     """
-    def __init__(self, algorithm, loss_function, epochs, learning_rate, momentum, batch_size):
+    def __init__(self, algorithm: str,
+                 loss_function: str,
+                 epochs: int,
+                 learning_rate: float,
+                 momentum: float,
+                 batch_size: int):
         self.algorithm = algorithm
         self.loss_function = loss_functions[loss_function]
         self.epochs = epochs
@@ -26,7 +33,7 @@ class MiningSettings:
         self.batch_size = batch_size
 
     @staticmethod
-    def from_proto(proto_settings):
+    def from_proto(proto_settings: Descriptor):
         """
         Метод для преобразования дескриптора в MiningSettings
         :param proto_settings: дескриптор
