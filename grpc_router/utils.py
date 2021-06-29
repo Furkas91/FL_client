@@ -1,6 +1,6 @@
 """
 В этом файле представлен код, реализующий логику
-RPC процедур, испольняемых на клиенте
+RPC процедур, исполняемых на клиенте
 """
 from grpc_router import fl_service_router_pb2
 from proto_adapter import MiningSettings, NeuralNetModel
@@ -21,7 +21,7 @@ def execute(container, service_id):
     else:
         path = {
             'nn_client_1': 'D:\FL_client\data\smartilizer\Video-11-12-5-821.csv',
-            'nn_client_2': 'D:\FL_client\data\smartilizer\Video-11-21-6-412.csv'
+            'nn_client_2': 'D:\FL_client\data\smartilizer\Video-10-15-12-812.csv'
         }
         model = mdd.to_torch_model()
         result, count = train_evaluate(net=model, path=path[service_id], settings=sett,
